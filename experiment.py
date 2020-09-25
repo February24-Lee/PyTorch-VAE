@@ -5,11 +5,12 @@ from models import BaseVAE
 from models.types_ import *
 from utils import data_loader
 import pytorch_lightning as pl
-from torchvision import transforms
+from torchvision import transforms, datasets
 import torchvision.utils as vutils
 from torchvision.datasets import CelebA
 from torch.utils.data import DataLoader
-
+from torch.utils.data.sampler import SubsetRandomSampler
+import numpy as np
 
 class VAEXperiment(pl.LightningModule):
 
@@ -56,7 +57,7 @@ class VAEXperiment(pl.LightningModule):
 
         return val_loss
 
-    def validation_end(self, outputs):
+    def validation_epoch_end(self, outputs):
         avg_loss = torch.stack([x['loss'] for x in outputs]).mean()
         tensorboard_logs = {'avg_val_loss': avg_loss}
         self.sample_images()
@@ -141,6 +142,21 @@ class VAEXperiment(pl.LightningModule):
                              split = "train",
                              transform=transform,
                              download=False)
+        elif self.params['dataset'] in  ['my_celeba', 'satellite_hill', 'satellite_rgb']:
+            dataset = datasets.ImageFolder(root=self.params['data_path'],
+                                        transform=transform)
+            num_train = len(dataset)
+            indices = list(range(num_train))
+            split = int(np.floor(self.params['test_ratio'] * num_train))
+
+            train_idx = indices[split:]
+            train_sampler = SubsetRandomSampler(train_idx)
+            self.num_train_imgs = len(train_idx)
+
+            return DataLoader(dataset,
+                          batch_size= self.params['batch_size'],
+                          sampler=train_sampler,
+                          drop_last=True)
         else:
             raise ValueError('Undefined dataset type')
 
@@ -163,6 +179,22 @@ class VAEXperiment(pl.LightningModule):
                                                  shuffle = True,
                                                  drop_last=True)
             self.num_val_imgs = len(self.sample_dataloader)
+
+        elif self.params['dataset'] in ['my_celeba', 'satellite_hill', 'satellite_rgb']:
+            dataset = datasets.ImageFolder(root=self.params['data_path'],
+                                        transform=transform)
+            num_train = len(dataset)
+            indices = list(range(num_train))
+            split = int(np.floor(self.params['test_ratio'] * num_train))
+
+            val_idx = indices[:split]
+            val_sampler = SubsetRandomSampler(val_idx)
+            self.num_val_imgs = len(val_idx)
+            self.sample_dataloader = DataLoader(dataset,
+                                    batch_size= 144,
+                                    sampler=val_sampler,
+                                    drop_last=True)
+            return self.sample_dataloader
         else:
             raise ValueError('Undefined dataset type')
 
@@ -173,8 +205,15 @@ class VAEXperiment(pl.LightningModule):
         SetRange = transforms.Lambda(lambda X: 2 * X - 1.)
         SetScale = transforms.Lambda(lambda X: X/X.sum(0).expand_as(X))
 
-        if self.params['dataset'] == 'celeba':
+        if self.params['dataset'] in ['celeba', 'my_celeba', 'satellite_rgb']:
             transform = transforms.Compose([transforms.RandomHorizontalFlip(),
+                                            transforms.CenterCrop(148),
+                                            transforms.Resize(self.params['img_size']),
+                                            transforms.ToTensor(),
+                                            SetRange])
+        elif self.params['dataset'] in ['satellite_hill']:
+            transform = transforms.Compose([transforms.Grayscale(num_output_channels=1),
+                                            transforms.RandomHorizontalFlip(),
                                             transforms.CenterCrop(148),
                                             transforms.Resize(self.params['img_size']),
                                             transforms.ToTensor(),
