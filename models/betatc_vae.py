@@ -35,8 +35,8 @@ class BetaTCVAE(BaseVAE):
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma
-        '''
-        #modules = []
+        
+        modules = []
         if hidden_dims is None:
             hidden_dims = [32, 32, 32, 32]
 
@@ -49,25 +49,30 @@ class BetaTCVAE(BaseVAE):
                     nn.LeakyReLU())
             )
             in_channels = h_dim
-        '''
         
+        self.encoder =  nn.Sequential(*modules)
+        '''
         self.encoder =  Encoder()
-
         self.fc = nn.Sequential(
             nn.Linear(1000, 1024),
             nn.BatchNorm1d(1024, momentum=0.01),
             nn.Linear(1024, 256),
             nn.BatchNorm1d(256, momentum=0.01))
 
+        '''
+
+        self.fc = nn.Linear(hidden_dims[-1]*16, 256)
+
         self.fc_mu = nn.Linear(256, latent_dim)
         self.fc_var = nn.Linear(256, latent_dim)
+
 
         # Build Decoder
         modules = []
 
         self.decoder_input = nn.Linear(latent_dim, 256 *  2)
 
-        hidden_dims = [32, 32, 32, 32]
+        hidden_dims.reverse()
 
         for i in range(len(hidden_dims) - 1):
             modules.append(
@@ -78,7 +83,7 @@ class BetaTCVAE(BaseVAE):
                                        stride = 2,
                                        padding=1,
                                        output_padding=1),
-                    nn.BatchNorm2d(hidden_dims[i+1], momentum=0.01),
+                    #nn.BatchNorm2d(hidden_dims[i+1], momentum=0.01),
                     nn.LeakyReLU())
             )
         self.decoder = nn.Sequential(*modules)
@@ -90,7 +95,7 @@ class BetaTCVAE(BaseVAE):
                                                stride=2,
                                                padding=1,
                                                output_padding=1),
-                            nn.BatchNorm2d(hidden_dims[-1], momentum=0.01),                                               
+                            #nn.BatchNorm2d(hidden_dims[-1], momentum=0.01),                                               
                             nn.LeakyReLU(),
                             nn.Conv2d(hidden_dims[-1], out_channels= 3,
                                       kernel_size= 3, padding= 1),
@@ -105,7 +110,7 @@ class BetaTCVAE(BaseVAE):
         """
         result = self.encoder(input)
 
-        #result = torch.flatten(result, start_dim=1)
+        result = torch.flatten(result, start_dim=1)
         result = self.fc(result)
         # Split the result into mu and var components
         # of the latent Gaussian distribution

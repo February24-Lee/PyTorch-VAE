@@ -1,8 +1,5 @@
 model_params:
   name: 'BetaTCVAE'
-  # hillshape
-  #in_channels: 1
-  # others
   in_channels: 1
   latent_dim: 10
   anneal_steps: 10000
@@ -12,7 +9,7 @@ model_params:
 
 exp_params:
   dataset: "satellite_hill"
-  data_path: "../../Share_Data/satellite/jpg_hill_rv_d10/"
+  data_path: "../../Share_Data/satellite/jpg_hill_d10_rv/"
   #dataset: "satellite_rgb"
   #data_path: "../../Share_Data/satellite/jpg_rgb_all_d10/"
   test_ratio: 0.2
