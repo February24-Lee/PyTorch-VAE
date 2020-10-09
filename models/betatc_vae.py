@@ -97,7 +97,7 @@ class BetaTCVAE(BaseVAE):
                                                output_padding=1),
                             #nn.BatchNorm2d(hidden_dims[-1], momentum=0.01),                                               
                             nn.LeakyReLU(),
-                            nn.Conv2d(hidden_dims[-1], out_channels= 3,
+                            nn.Conv2d(hidden_dims[-1], out_channels= 1,
                                       kernel_size= 3, padding= 1),
                             nn.Tanh())
 
