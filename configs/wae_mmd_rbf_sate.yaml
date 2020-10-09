@@ -1,0 +1,29 @@
+model_params:
+  name: 'WAE_MMD'
+  in_channels: 1
+  latent_dim: 128
+  reg_weight: 5000
+  kernel_type: 'rbf'
+
+exp_params:
+  dataset: 'satellite_hill'
+  data_path: "../../Share_Data/satellite/jpg_hill_rv_d10/"
+  img_size: 64
+  test_ratio: 0.2
+  batch_size: 144 # Better to have a square number
+  LR: 0.005
+  weight_decay: 0.0
+  scheduler_gamma: 0.95
+
+trainer_params:
+  gpus: 1
+  max_epochs: 500
+
+logging_params:
+  save_dir: "logs/"
+  name: "WassersteinVAE_RBF"
+  manual_seed: 1265
+
+
+
+
