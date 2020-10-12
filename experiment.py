@@ -96,7 +96,6 @@ class VAEXperiment(pl.LightningModule):
 
         del test_input, recons #, samples
 
-
     def configure_optimizers(self):
 
         optims = []
