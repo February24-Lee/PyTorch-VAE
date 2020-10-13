@@ -143,7 +143,7 @@ class SimCLRSateRgb(pl.LightningModule):
         return loss
 
     def validation_epoch_end(self, outputs):
-        avg_loss = torch.stack([x['loss'] for x in outputs]).mean()
+        avg_loss = torch.stack(outputs).mean()
         tensorboard_logs = {'avg_val_loss': avg_loss}
         return {'val_loss': avg_loss, 'log': tensorboard_logs}
 
