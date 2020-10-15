@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 
 import pytorch_lightning as pl
+import torch
 from torch import nn
 from torch.nn import functional as F
 from torch.optim import Adam
@@ -16,14 +17,14 @@ except ImportError:
 from pl_bolts.callbacks.self_supervised import SSLOnlineEvaluator
 from pl_bolts.losses.self_supervised_learning import nt_xent_loss
 from pl_bolts.models.self_supervised.evaluator import Flatten
-from pl_bolts.models.self_supervised.resnets import resnet50_bn
+from pl_bolts.models.self_supervised.resnets import resnet50_bn, resnet34, resnet18
 #from pl_bolts.models.self_supervised.simclr.simclr_transforms import SimCLREvalDataTransform, SimCLRTrainDataTransform
 from pl_bolts.optimizers.lars_scheduling import LARSWrapper
 from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 
-_LATENT_DIM = 32
-_HIDDEN_DIM = 10
-_OUTPUT_DIM = 5
+_LATENT_DIM = 512 * 1
+_HIDDEN_DIM = 512 * 1
+_OUTPUT_DIM = 32
 _INCHANNEL = 1
 
 class Projection(nn.Module):
@@ -65,6 +66,7 @@ class SimCLR_sate(pl.LightningModule):
         self.Projection = Projection()
         
     def init_encoder(self):
+        '''
         modules = []
         hidden_dims = [32, 32, 32, 32]
         in_channels = _INCHANNEL
@@ -78,14 +80,10 @@ class SimCLR_sate(pl.LightningModule):
             )
             in_channels = h_dim
         '''
-        modules.append(
-            nn.Sequential(
-                nn.Flatten(start_dim=1),
-                nn.Linear(hidden_dims[-1]*16, 256),
-                nn.Linear(256, _LATENT_DIM))
-                )
-        '''
-        return nn.Sequential(*modules)
+        encoder = resnet18(return_all_feature_maps=False)
+        encoder.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,
+        bias=False)
+        return encoder
 
     def exclude_from_wt_decay(self, named_params, weight_decay, skip_list=['bias', 'bn']):
         params = []
@@ -147,16 +145,23 @@ class SimCLR_sate(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         loss = self.shared_step(batch, batch_idx)
 
-        result = pl.TrainResult(minimize=loss)
-        result.log('train_loss', loss, on_epoch=True)
-        return result
+        #result = pl.TrainResult(minimize=loss)
+        #result.log('train_loss', loss, on_epoch=True)
+        self.logger.experiment.log({'training_loss': loss})
+        return loss
 
     def validation_step(self, batch, batch_idx):
         loss = self.shared_step(batch, batch_idx)
 
-        result = pl.EvalResult(checkpoint_on=loss)
-        result.log('avg_val_loss', loss)
-        return result
+        #result = pl.EvalResult(checkpoint_on=loss)
+        #result.log('avg_val_loss', loss)
+        return loss
+
+    def validation_epoch_end(self, outputs):
+        avg_loss = torch.stack(outputs).mean()
+        self.logger.experiment.log({'avg_val_loss': avg_loss})
+        
+        return 
 
     def shared_step(self, batch, batch_idx):
         (img1, img2), y = batch

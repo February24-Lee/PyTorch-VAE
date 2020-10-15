@@ -17,14 +17,14 @@ except ImportError:
 from pl_bolts.callbacks.self_supervised import SSLOnlineEvaluator
 from pl_bolts.losses.self_supervised_learning import nt_xent_loss
 from pl_bolts.models.self_supervised.evaluator import Flatten
-from pl_bolts.models.self_supervised.resnets import resnet50_bn
+from pl_bolts.models.self_supervised.resnets import resnet50_bn, resnet18
 #from pl_bolts.models.self_supervised.simclr.simclr_transforms import SimCLREvalDataTransform, SimCLRTrainDataTransform
 from pl_bolts.optimizers.lars_scheduling import LARSWrapper
 from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 
-_LATENT_DIM = 2048
-_HIDDEN_DIM = 2048
-_OUTPUT_DIM = 128
+_LATENT_DIM = 512 * 1
+_HIDDEN_DIM = 512 * 1
+_OUTPUT_DIM = 32
 _INCHANNEL = 3
 
 class Projection(nn.Module):
@@ -66,8 +66,8 @@ class SimCLRSateRgb(pl.LightningModule):
         self.Projection = Projection()
         
     def init_encoder(self):
-        encoder = resnet50_bn(return_all_feature_maps=False)
-
+        #encoder = resnet50_bn(return_all_feature_maps=False)
+        encoder = resnet18(return_all_feature_maps=False)
         return encoder
 
     def exclude_from_wt_decay(self, named_params, weight_decay, skip_list=['bias', 'bn']):
@@ -132,8 +132,8 @@ class SimCLRSateRgb(pl.LightningModule):
 
         #result = pl.TrainResult(minimize=loss)
         #result.log('train_loss', loss, on_epoch=True)
-        self.logger.experiment.log('training_loss', loss)
-        return {'training_loss' : loss}
+        self.logger.experiment.log({'training_loss': loss})
+        return loss
 
     def validation_step(self, batch, batch_idx):
         loss = self.shared_step(batch, batch_idx)
@@ -144,8 +144,9 @@ class SimCLRSateRgb(pl.LightningModule):
 
     def validation_epoch_end(self, outputs):
         avg_loss = torch.stack(outputs).mean()
-        tensorboard_logs = {'avg_val_loss': avg_loss}
-        return {'val_loss': avg_loss, 'log': tensorboard_logs}
+        self.logger.experiment.log({'avg_val_loss': avg_loss})
+        
+        return 
 
     def shared_step(self, batch, batch_idx):
         (img1, img2), y = batch
