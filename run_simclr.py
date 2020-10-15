@@ -6,6 +6,7 @@ import torch
 import torch.backends.cudnn as cudnn
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import TestTubeLogger
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 from simCLR import *
 from src import *
@@ -24,7 +25,13 @@ with open(args.filename, 'r') as file:
     except yaml.YAMLError as exc:
         print(exc)
 
+# Callback function
+checkpoint_callback_valid = ModelCheckpoint(monitor='avg_val_loss',
+                                            save_last=False,
+                                            save_top_k=1,
+                                            mode='min')
 
+# Logger
 tt_logger = TestTubeLogger(
     save_dir=config['logging_params']['save_dir'],
     name=config['logging_params']['name'],
@@ -50,7 +57,8 @@ runner = Trainer(default_root_dir=f"{tt_logger.save_dir}",
                  #val_percent_check=1.,
                  num_sanity_val_steps=5,
                  early_stop_callback = False,
-                 **config['trainer_params'])
+                 checkpoint_callback=checkpoint_callback_valid,
+                 **config['trainer_params'],)
 
 print(f"======= Training {config['model_params']['name']} =======")
 runner.fit(model, datamodule)

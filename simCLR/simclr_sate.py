@@ -160,7 +160,6 @@ class SimCLR_sate(pl.LightningModule):
     def validation_epoch_end(self, outputs):
         avg_loss = torch.stack(outputs).mean()
         self.logger.experiment.log({'avg_val_loss': avg_loss})
-        
         return 
 
     def shared_step(self, batch, batch_idx):
