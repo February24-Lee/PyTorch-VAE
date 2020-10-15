@@ -15,11 +15,16 @@ model_params:
 
 exp_parmas:
   dataset: 'satellite_hill'
-  data_path: "../../Share_Data/satellite/jpg_hill_d10_rv/"
+  data_path: "../../Share_Data/satellite/jpg_hill_rv_d10/"
   test_ratio: 0.2
-  img_size: 64
+  img_size: 128
   batch_size: 512
 
 trainer_params:
   gpus: 1
   max_epochs: 500
+
+logging_params:
+  save_dir: "logs/"
+  name: "SimCLR_Hill"
+  manual_seed: 1265

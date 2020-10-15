@@ -44,7 +44,7 @@ model = simclr_model[config['model_params']['name']](num_samples=datamodule.trai
 
 runner = Trainer(default_root_dir=f"{tt_logger.save_dir}",
                  logger=tt_logger,
-                 row_log_interval=1,
+                 row_log_interval=10,
                  log_save_interval=100,
                  #train_percent_check=1.,
                  #val_percent_check=1.,
