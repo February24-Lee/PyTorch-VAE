@@ -15,14 +15,13 @@ model_params:
 
 exp_parmas:
   dataset: 'satellite_rgb'
-  data_path: "../../Share_Data/satellite/jpg_hill_d10_rv/"
+  data_path: "../../Share_Data/satellite/jpg_rgb_all_d10/"
   test_ratio: 0.2
-  img_size: 256
+  img_size: 128
   batch_size: 512
 
 trainer_params:
   gpus: 1
-  max_nb_epochs: 500
   max_epochs: 500
 
 logging_params:

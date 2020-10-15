@@ -38,9 +38,9 @@ np.random.seed(config['logging_params']['manual_seed'])
 cudnn.deterministic = True
 cudnn.benchmark = False
 
-model = simclr_model[config['model_params']['name']](**config['model_params'])
-
 datamodule = datamodule_model[config['exp_parmas']['dataset']](**config['exp_parmas'])
+
+model = simclr_model[config['model_params']['name']](num_samples=datamodule.train_num ,**config['model_params'])
 
 runner = Trainer(default_root_dir=f"{tt_logger.save_dir}",
                  logger=tt_logger,
