@@ -15,7 +15,7 @@ class Encoder(nn.Module):
         return self.resnet(input)
     
 
-class BetaTCVAE(BaseVAE):
+class BetaTCVAE_RGB(BaseVAE):
     num_iter = 0 # Global static variable to keep track of iterations
 
     def __init__(self,
@@ -27,7 +27,7 @@ class BetaTCVAE(BaseVAE):
                  beta: float =  6.,
                  gamma: float = 1.,
                  **kwargs) -> None:
-        super(BetaTCVAE, self).__init__()
+        super(BetaTCVAE_RGB, self).__init__()
 
         self.latent_dim = latent_dim
         self.anneal_steps = anneal_steps
@@ -38,7 +38,7 @@ class BetaTCVAE(BaseVAE):
         
         modules = []
         if hidden_dims is None:
-            hidden_dims = [32, 32, 32, 32]
+            hidden_dims = [32, 32, 32, 32, 32]
 
         # Build Encoder
         for h_dim in hidden_dims:

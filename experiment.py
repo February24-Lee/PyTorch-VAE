@@ -42,7 +42,6 @@ class VAEXperiment(pl.LightningModule):
                                               batch_idx = batch_idx)
 
         self.logger.experiment.log({key: val.item() for key, val in train_loss.items()})
-
         return train_loss
 
     def validation_step(self, batch, batch_idx, optimizer_idx = 0):
@@ -59,9 +58,9 @@ class VAEXperiment(pl.LightningModule):
 
     def validation_epoch_end(self, outputs):
         avg_loss = torch.stack([x['loss'] for x in outputs]).mean()
-        tensorboard_logs = {'avg_val_loss': avg_loss}
+        self.logger.experiment.log({'avg_val_loss': avg_loss})
         self.sample_images()
-        return {'val_loss': avg_loss, 'log': tensorboard_logs}
+        return 
 
     def sample_images(self):
         # Get sample reconstruction image
