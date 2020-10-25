@@ -1,27 +1,28 @@
 model_params:
-  name: 'WAE_MMD'
-  in_channels: 1
-  latent_dim: 128
+  name: 'WAE_MMD_RGB'
+  in_channels: 3
+  latent_dim: 10
   reg_weight: 5000
   kernel_type: 'rbf'
 
 exp_params:
-  dataset: 'satellite_hill'
-  data_path: "../../Share_Data/satellite/jpg_hill_rv_d10/"
-  img_size: 64
+  dataset: "satellite_rgb"
+  data_path: "../../Share_Data/satellite/jpg_rgb_all_d10/"
+  img_size: 128
   test_ratio: 0.2
   batch_size: 144 # Better to have a square number
   LR: 0.005
   weight_decay: 0.0
   scheduler_gamma: 0.95
+  num_workers: 64
 
 trainer_params:
   gpus: 1
-  max_epochs: 500
+  max_epochs: 1500
 
 logging_params:
   save_dir: "logs/"
-  name: "WassersteinVAE_RBF"
+  name: "WassersteinVAE_RBF_RGB"
   manual_seed: 1265
 
 

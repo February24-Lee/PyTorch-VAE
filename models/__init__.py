@@ -22,6 +22,7 @@ from .vq_vae import *
 from .betatc_vae import *
 from .dip_vae import *
 from .betatc_vae_rgb_sate import *
+from .wae_mmd_rgb import *
 
 # Aliases
 VAE = VanillaVAE
@@ -50,4 +51,5 @@ vae_models = {'HVAE':HVAE,
               'VanillaVAE':VanillaVAE,
               'ConditionalVAE':ConditionalVAE,
               'CategoricalVAE':CategoricalVAE,
-              'BetaTCVAE_RGB':BetaTCVAE_RGB}
+              'BetaTCVAE_RGB':BetaTCVAE_RGB,
+              'WAE_MMD_RGB':WAE_MMD_RGB}
