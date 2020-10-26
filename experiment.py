@@ -1,5 +1,6 @@
 import math
 import torch
+from pathlib import Path
 from torch import optim
 from models import BaseVAE
 from models.types_ import *
@@ -40,8 +41,9 @@ class VAEXperiment(pl.LightningModule):
                                               M_N = self.params['batch_size']/ self.num_train_imgs,
                                               optimizer_idx=optimizer_idx,
                                               batch_idx = batch_idx)
-
-        self.logger.experiment.log({key: val.item() for key, val in train_loss.items()})
+        #for key in train_loss:
+        #    self.log_metric(key, train_loss[key], on_step=True)
+        self.logger.experiment.log_metrics({key: val.item() for key, val in train_loss.items()}, step=self.global_step)
         return train_loss
 
     def validation_step(self, batch, batch_idx, optimizer_idx = 0):
@@ -58,8 +60,10 @@ class VAEXperiment(pl.LightningModule):
 
     def validation_epoch_end(self, outputs):
         avg_loss = torch.stack([x['loss'] for x in outputs]).mean()
-        self.logger.experiment.log({'avg_val_loss': avg_loss})
-        self.sample_images()
+        #self.log('avg_val_loss', avg_loss, on_epoch=True)
+        self.logger.experiment.log_metric('avg_val_loss', avg_loss, epoch=self.current_epoch)
+        if self.current_epoch % self.params['frequency_img_save'] == 0:
+            self.sample_images()
         return 
 
     def sample_images(self):
@@ -68,7 +72,14 @@ class VAEXperiment(pl.LightningModule):
         test_input = test_input.to(self.curr_device)
         test_label = test_label.to(self.curr_device)
         recons = self.model.generate(test_input, labels = test_label)
-        vutils.save_image(recons.data,
+        #self.logger.experiment.log_image(vutils.make_grid(test_input.data, normalize=True, nrow=12).permute(1,2,0),
+        #                                name='input_img',
+        #                                step=self.current_epoch)
+        #self.logger.experiment.log_image(vutils.make_grid(recons.data, normalize=True, nrow=12).permute(1,2,0),
+        #                                name = 'recons_img',
+        #                                step = self.current_epoch)
+        Path(f"{self.logger.save_dir}{self.logger.name}/version_{self.logger.version}/").mkdir(parents=True, exist_ok=True)
+        vutils.save_image(torch.cat([recons.data, test_input.data], dim=0),
                           f"{self.logger.save_dir}{self.logger.name}/version_{self.logger.version}/"
                           f"recons_{self.logger.name}_{self.current_epoch}.png",
                           normalize=True,
@@ -84,6 +95,9 @@ class VAEXperiment(pl.LightningModule):
             samples = self.model.sample(144,
                                         self.curr_device,
                                         labels = test_label)
+            #self.logger.experiment.log_image(vutils.make_grid(samples, normalize=True, nrow=12),
+            #                    name = 'sample image',
+            #                    step = self.current_epoch)
             vutils.save_image(samples.cpu().data,
                               f"{self.logger.save_dir}{self.logger.name}/version_{self.logger.version}/"
                               f"{self.logger.name}_{self.current_epoch}.png",

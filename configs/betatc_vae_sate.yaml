@@ -3,23 +3,23 @@ model_params:
   name: 'BetaTCVAE_RGB'
   #in_channels: 1
   in_channels: 3
-  latent_dim: 10
+  latent_dim: 32
   anneal_steps: 10000
   alpha: 1.
   beta:  6.
   gamma: 1.
 
 exp_params:
-  #dataset: "satellite_hill"
-  #data_path: "../../Share_Data/satellite/jpg_hill_rv_d10/"
   dataset: "satellite_rgb"
   data_path: "../../Share_Data/satellite/jpg_rgb_all_d10/"
+  #data_path: "../../Share_Data/satellite/jpg_cart_all_d10/"
   test_ratio: 0.2
   #img_size: 64
   img_size: 128
   batch_size: 144 # Better to have a square number
   LR: 0.001
   weight_decay: 0.0
+  num_workers: 64
 #  scheduler_gamma: 0.99
 
 trainer_params:
@@ -29,4 +29,5 @@ trainer_params:
 logging_params:
   save_dir: "logs/"
   name: "BetaTCVAE_RGB"
+  #name: "BetaTCVAE_CART"
   manual_seed: 1265
