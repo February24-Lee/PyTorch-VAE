@@ -28,6 +28,6 @@ trainer_params:
 
 logging_params:
   save_dir: "logs/"
-  name: "BetaTCVAE_RGB"
-  #name: "BetaTCVAE_CART"
+  #name: "BetaTCVAE_RGB"
+  name: "BetaTCVAE"
   manual_seed: 1265
