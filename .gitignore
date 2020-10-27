@@ -10,3 +10,6 @@ __pycache__/
 Run.ipynb
 
 .vscode
+
+# --- privacy
+comet_ml_API.yaml

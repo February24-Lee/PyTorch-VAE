@@ -18,6 +18,10 @@ parser.add_argument('--config',  '-c',
                     help =  'path to the config file',
                     default='configs/vae.yaml')
 
+parser.add_argument('--comet_api', '-ca',
+                    dest='comet_api')
+
+
 args = parser.parse_args()
 with open(args.filename, 'r') as file:
     try:
@@ -25,7 +29,14 @@ with open(args.filename, 'r') as file:
     except yaml.YAMLError as exc:
         print(exc)
 
-# TestTubeLogger
+
+with open(args.comet_api, 'r') as f:
+    try : 
+        comet_api = yaml.safe_load(f)
+    except yaml.YAMLError as exc:
+        print(exc)
+
+# --- TestTubeLogger
 tt_logger = TestTubeLogger(
     save_dir=config['logging_params']['save_dir'],
     name=config['logging_params']['name'],
@@ -33,12 +44,10 @@ tt_logger = TestTubeLogger(
     create_git_tag=False,
 )
 
-# CometLogger
+# --- CometLogger
 comet_logger = CometLogger(
-    api_key='U4sjQMNfZQO8aKBrkzrHLjMld',
-    workspace="february24-lee",
-    project_name="satellite-vae",
-    save_dir=config['logging_params']['save_dir']
+    api_key=comet_api['comet_ml_api'],
+    **config['comet_params']
 )
 
 

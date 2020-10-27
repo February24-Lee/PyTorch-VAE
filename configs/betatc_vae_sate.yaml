@@ -20,6 +20,7 @@ exp_params:
   LR: 0.001
   weight_decay: 0.0
   num_workers: 64
+  frequency_img_save: 10
 #  scheduler_gamma: 0.99
 
 trainer_params:
@@ -28,6 +29,11 @@ trainer_params:
 
 logging_params:
   save_dir: "logs/"
-  #name: "BetaTCVAE_RGB"
-  name: "BetaTCVAE"
+  name: "BetaTCVAE_RGB"
   manual_seed: 1265
+
+comet_params:
+  workspace: "february24-lee"
+  project_name: "satellite-vae"
+  experiment_name: "BetaTCVAE_RGB"
+  save_dir: "logs/"

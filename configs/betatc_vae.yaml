@@ -27,3 +27,10 @@ logging_params:
   save_dir: "logs/"
   name: "BetaTCVAE_Hill"
   manual_seed: 1265
+
+
+comet_params:
+  workspace: "february24-lee"
+  project_name: "satellite-vae"
+  experiment_name: "BetaTCVAE_Hill"
+  save_dir: "logs/"
