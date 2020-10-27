@@ -1,12 +1,14 @@
 import yaml
 import argparse
 import numpy as np
+import os
+from pathlib import Path
 
 from models import *
 from experiment import VAEXperiment
 import torch.backends.cudnn as cudnn
 from pytorch_lightning import Trainer
-from pytorch_lightning.loggers import TestTubeLogger
+from pytorch_lightning.loggers import TestTubeLogger, CometLogger
 
 
 parser = argparse.ArgumentParser(description='Generic runner for VAE models')
@@ -23,13 +25,22 @@ with open(args.filename, 'r') as file:
     except yaml.YAMLError as exc:
         print(exc)
 
-
+# TestTubeLogger
 tt_logger = TestTubeLogger(
     save_dir=config['logging_params']['save_dir'],
     name=config['logging_params']['name'],
     debug=False,
     create_git_tag=False,
 )
+
+# CometLogger
+comet_logger = CometLogger(
+    api_key='U4sjQMNfZQO8aKBrkzrHLjMld',
+    workspace="february24-lee",
+    project_name="satellite-vae",
+    save_dir=config['logging_params']['save_dir']
+)
+
 
 # For reproducibility
 torch.manual_seed(config['logging_params']['manual_seed'])
@@ -42,7 +53,7 @@ experiment = VAEXperiment(model,
                           config['exp_params'])
 
 runner = Trainer(default_root_dir=f"{tt_logger.save_dir}",
-                 logger=tt_logger,
+                 logger=comet_logger,
                  row_log_interval=1,
                  log_save_interval=100,
                  #train_percent_check=1.,

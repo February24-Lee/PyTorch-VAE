@@ -38,7 +38,7 @@ class BetaTCVAE(BaseVAE):
         
         modules = []
         if hidden_dims is None:
-            hidden_dims = [32, 32, 32, 32]
+            hidden_dims = [32, 32, 32, 32, 32]
 
         # Build Encoder
         for h_dim in hidden_dims:
@@ -97,6 +97,7 @@ class BetaTCVAE(BaseVAE):
                                                output_padding=1),
                             #nn.BatchNorm2d(hidden_dims[-1], momentum=0.01),                                               
                             nn.LeakyReLU(),
+                            # Gray Scale
                             nn.Conv2d(hidden_dims[-1], out_channels= 1,
                                       kernel_size= 3, padding= 1),
                             nn.Tanh())
