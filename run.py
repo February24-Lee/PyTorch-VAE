@@ -19,7 +19,8 @@ parser.add_argument('--config',  '-c',
                     default='configs/vae.yaml')
 
 parser.add_argument('--comet_api', '-ca',
-                    dest='comet_api')
+                    dest='comet_api',
+                    default='comet_ml_API.yaml')
 
 
 args = parser.parse_args()
