@@ -11,8 +11,8 @@ model_params:
 
 exp_params:
   dataset: "satellite_rgb"
-  data_path: "../../Share_Data/satellite/jpg_rgb_all_d10/"
-  #data_path: "../../Share_Data/satellite/jpg_cart_all_d10/"
+  #data_path: "../../Share_Data/satellite/jpg_rgb_all_d10/"
+  data_path: "../../Share_Data/satellite/jpg_cart_all_d10/"
   test_ratio: 0.2
   #img_size: 64
   img_size: 128
@@ -35,5 +35,6 @@ logging_params:
 comet_params:
   workspace: "february24-lee"
   project_name: "satellite-vae"
-  experiment_name: "BetaTCVAE_RGB"
+  #experiment_name: "BetaTCVAE_RGB"
+  experiment_name: "BetaTCVAE_CART"
   save_dir: "logs/"

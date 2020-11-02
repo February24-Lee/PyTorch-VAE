@@ -24,15 +24,19 @@ class VAEXperiment(pl.LightningModule):
         self.params = params
         self.curr_device = None
         self.hold_graph = False
-        self.z_list = np.array()
-        
+        self.z_list = []
+        self.save_hyperparameters()
+
         try:
             self.hold_graph = self.params['retain_first_backpass']
         except:
             pass
         
-        self.logger.experiment.log_parameters(self.params)
+        
+    def setup(self, stage='fit'):
+        #self.logger.experiment.log_parameters(self.params)
         self.logger.experiment.set_model_graph(str(self.model))
+        return
 
     def forward(self, input: Tensor, **kwargs) -> Tensor:
         return self.model(input, **kwargs)
@@ -61,7 +65,7 @@ class VAEXperiment(pl.LightningModule):
                                             optimizer_idx = optimizer_idx,
                                             batch_idx = batch_idx)
         # --- validation latent vector check
-        self.z_list.append(results[-1].detach().numpy())
+        self.z_list.append(results[-1].to('cpu').detach().numpy())
 
         return val_loss
 
@@ -71,11 +75,10 @@ class VAEXperiment(pl.LightningModule):
         self.logger.experiment.log_metric('avg_val_loss', avg_loss, epoch=self.current_epoch)
         if self.current_epoch % self.params['frequency_img_save'] == 0:
             self.sample_images()
-        z_list = np.array(self.z_list).reshape(-1,self.model.latent_dim)
-        for index in range(z_list.shape[-1]):
-            self.logger.experiment.log_histogram_3d(z_list[:,index], name='latent_vector {}'.format(index), step=self.global_step)
-
-        self.z_list = []
+        #z_list = np.array(self.z_list).reshape(-1,self.model.latent_dim)
+        #for index in range(z_list.shape[-1]):
+        #    self.logger.experiment.log_histogram_3d(z_list[:,index], name='latent_vector {}'.format(index), step=self.global_step)
+        #self.z_list = []
         return 
 
     def sample_images(self):
@@ -90,7 +93,7 @@ class VAEXperiment(pl.LightningModule):
         #self.logger.experiment.log_image(vutils.make_grid(recons.data, normalize=True, nrow=12).permute(1,2,0),
         #                                name = 'recons_img',
         #                                step = self.current_epoch)
-        Path(f"{self.logger.save_dir}{self.logger.name}/version_{self.logger.version}/").mkdir(parents=True, exist_ok=True)
+        Path(f"{self.logger.save_dir}{self.logger.name}/{self.logger.version}/").mkdir(parents=True, exist_ok=True)
         vutils.save_image(torch.cat([recons.data, test_input.data], dim=0),
                           f"{self.logger.save_dir}{self.logger.name}/{self.logger.version}/"
                           f"recons_{self.logger.name}_{self.current_epoch}.png",
