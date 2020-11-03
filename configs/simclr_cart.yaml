@@ -1,0 +1,30 @@
+model_params:
+  name: 'simclr_sate_rgb'
+  batch_size: 512
+  learning_rate: 1.0
+  lars_momentum: 0.9
+  lars_eta: 0.001
+  lr_sched_step: 30
+  lr_sched_gamma: 0.5
+  weight_decay: 0.0001
+  loss_temperature: 0.5
+  num_workers: 0
+  warmup_epochs: 10
+  lr: 0.0001
+
+
+exp_parmas:
+  dataset: 'satellite_rgb'
+  data_path: "../../Share_Data/satellite/jpg_cart_all_d10/"
+  test_ratio: 0.2
+  img_size: 128
+  batch_size: 512
+
+trainer_params:
+  gpus: 1
+  max_epochs: 1000
+
+logging_params:
+  save_dir: "logs/"
+  name: "SimCLR_CART"
+  manual_seed: 1265
