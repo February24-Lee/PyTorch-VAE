@@ -27,7 +27,7 @@ with open(args.filename, 'r') as file:
 
 # Callback function
 checkpoint_callback_valid = ModelCheckpoint(monitor='avg_val_loss',
-                                            save_last=False,
+                                            save_last=True,
                                             save_top_k=1,
                                             mode='min')
 
