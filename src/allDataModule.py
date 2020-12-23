@@ -104,8 +104,7 @@ class MySimCLREvalDataTransform(object):
         self.input_height = input_height
         self.test_transform = transforms.Compose([
             transforms.Resize(input_height + 10, interpolation=3),
-            transforms.CenterCrop(input_height),
-            transforms.ToTensor(),
+            transforms.CenterCrop(input_height)
         ])
 
     def __call__(self, sample):
