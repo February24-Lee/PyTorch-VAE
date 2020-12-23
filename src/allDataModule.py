@@ -53,7 +53,7 @@ class AllDataModule(LightningDataModule):
         self.num_train_imgs = len(train_idx)
 
         return DataLoader(dataset,
-                    num_workers=64,
+                    num_workers=50,
                     batch_size= self.batch_size,
                     sampler=train_sampler,
                     drop_last=True)
@@ -72,7 +72,7 @@ class AllDataModule(LightningDataModule):
         val_sampler = SubsetRandomSampler(val_idx)
         self.num_val_imgs = len(val_idx)
         self.sample_dataloader = DataLoader(dataset,
-                                num_workers=64,
+                                num_workers=50,
                                 batch_size= 144,
                                 sampler=val_sampler,
                                 drop_last=True)
