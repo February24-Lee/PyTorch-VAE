@@ -17,7 +17,7 @@ except ImportError:
 from pl_bolts.callbacks.self_supervised import SSLOnlineEvaluator
 from pl_bolts.losses.self_supervised_learning import nt_xent_loss
 from pl_bolts.models.self_supervised.evaluator import Flatten
-from pl_bolts.models.self_supervised.resnets import resnet50_bn, resnet34, resnet18
+from pl_bolts.models.self_supervised.resnets import resnet50_bn, resnet18
 #from pl_bolts.models.self_supervised.simclr.simclr_transforms import SimCLREvalDataTransform, SimCLRTrainDataTransform
 from pl_bolts.optimizers.lars_scheduling import LARSWrapper
 from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
@@ -25,7 +25,7 @@ from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 _LATENT_DIM = 512 * 1
 _HIDDEN_DIM = 512 * 1
 _OUTPUT_DIM = 32
-_INCHANNEL = 1
+_INCHANNEL = 3
 
 class Projection(nn.Module):
     def __init__(self, 
@@ -49,7 +49,7 @@ class Projection(nn.Module):
         x = self.model(x)
         return F.normalize(x, dim=1)
 
-class SimCLR_sate(pl.LightningModule):
+class SimCLRSateAll(pl.LightningModule):
     def __init__(self,
                 batch_size,
                 num_samples,
@@ -66,23 +66,10 @@ class SimCLR_sate(pl.LightningModule):
         self.Projection = Projection()
         
     def init_encoder(self):
-        '''
-        modules = []
-        hidden_dims = [32, 32, 32, 32]
-        in_channels = _INCHANNEL
-
-        for h_dim in hidden_dims:
-            modules.append(
-                nn.Sequential(
-                    nn.Conv2d(in_channels, out_channels=h_dim,
-                            kernel_size= 4, stride=2, padding= 1),
-                    nn.LeakyReLU())
-            )
-            in_channels = h_dim
-        '''
+        #encoder = resnet50_bn(return_all_feature_maps=False)
         encoder = resnet18(return_all_feature_maps=False)
         # --- in case of RGB + CART + Hillshade
-        encoder.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,
+        encoder.conv1 = nn.Conv2d(7, 64, kernel_size=7, stride=2, padding=3,
         bias=False)
         return encoder
 
@@ -161,6 +148,7 @@ class SimCLR_sate(pl.LightningModule):
     def validation_epoch_end(self, outputs):
         avg_loss = torch.stack(outputs).mean()
         self.logger.experiment.log({'avg_val_loss': avg_loss})
+        
         return 
 
     def shared_step(self, batch, batch_idx):

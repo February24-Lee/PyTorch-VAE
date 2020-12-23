@@ -10,7 +10,6 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 from simCLR import *
 from src import *
-from src import satelliteDataModule, hillshpaeDataModule
 
 parser = argparse.ArgumentParser(description='Generic runner for simclr models')
 parser.add_argument('--config',  '-c',
